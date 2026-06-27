@@ -1,0 +1,673 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Car Expert Bot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #222222;
+    --surface3: #2a2a2a;
+    --border: #2e2e2e;
+    --border2: #3a3a3a;
+    --text: #f0f0f0;
+    --text2: #999;
+    --text3: #666;
+    --accent: #e8ff47;
+    --accent-dim: rgba(232,255,71,0.12);
+    --accent-border: rgba(232,255,71,0.25);
+    --red: #ff4f4f;
+    --radius: 10px;
+    --radius-lg: 16px;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+  }
+
+  /* ── HEADER ── */
+  header {
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 56px;
+    position: sticky;
+    top: 0;
+    background: rgba(15,15,15,0.92);
+    backdrop-filter: blur(12px);
+    z-index: 10;
+  }
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.3px;
+  }
+  .logo-icon {
+    width: 30px; height: 30px;
+    background: var(--accent);
+    border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .logo-icon svg { width: 17px; height: 17px; }
+  .header-badge {
+    font-size: 11px;
+    color: var(--accent);
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: 99px;
+    padding: 3px 10px;
+    font-weight: 500;
+  }
+
+  /* ── LAYOUT ── */
+  .container { max-width: 900px; margin: 0 auto; padding: 2.5rem 1.5rem; }
+
+  /* ── HERO ── */
+  .hero { text-align: center; margin-bottom: 2.5rem; }
+  .hero h1 {
+    font-size: clamp(28px, 5vw, 42px);
+    font-weight: 600;
+    letter-spacing: -1px;
+    line-height: 1.1;
+    margin-bottom: 10px;
+  }
+  .hero h1 span { color: var(--accent); }
+  .hero p { font-size: 15px; color: var(--text2); max-width: 440px; margin: 0 auto; line-height: 1.6; }
+
+  /* ── TABS ── */
+  .tabs-wrap {
+    display: flex;
+    justify-content: center;
+    margin-bottom: 2rem;
+  }
+  .tabs {
+    display: inline-flex;
+    gap: 4px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    padding: 5px;
+  }
+  .tab {
+    padding: 8px 20px;
+    border: none;
+    background: transparent;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 500;
+    color: var(--text2);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    transition: all 0.15s;
+    font-family: 'Inter', sans-serif;
+    white-space: nowrap;
+  }
+  .tab svg { width: 15px; height: 15px; flex-shrink: 0; }
+  .tab:hover { color: var(--text); background: var(--surface2); }
+  .tab.active {
+    background: var(--accent);
+    color: #0f0f0f;
+  }
+
+  /* ── PANELS ── */
+  .panel { display: none; }
+  .panel.active { display: block; }
+
+  /* ── SEARCH BAR ── */
+  .search-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+  .search-row input, .compare-inputs input {
+    flex: 1;
+    background: var(--surface);
+    border: 1px solid var(--border2);
+    border-radius: var(--radius);
+    padding: 11px 14px;
+    font-size: 14px;
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  .search-row input:focus, .compare-inputs input:focus {
+    border-color: var(--accent);
+  }
+  .search-row input::placeholder, .compare-inputs input::placeholder { color: var(--text3); }
+
+  .btn {
+    padding: 11px 20px;
+    background: var(--accent);
+    color: #0f0f0f;
+    border: none;
+    border-radius: var(--radius);
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    white-space: nowrap;
+    font-family: 'Inter', sans-serif;
+    transition: opacity 0.15s, transform 0.1s;
+  }
+  .btn:hover { opacity: 0.88; }
+  .btn:active { transform: scale(0.97); }
+  .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  .btn svg { width: 15px; height: 15px; }
+  .btn-full {
+    width: 100%;
+    justify-content: center;
+    margin-bottom: 1.5rem;
+  }
+  .btn-outline {
+    background: transparent;
+    border: 1px solid var(--border2);
+    color: var(--text);
+  }
+  .btn-outline:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-dim); opacity: 1; }
+
+  /* ── CAR CARD (single) ── */
+  .car-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .car-image {
+    width: 100%;
+    height: 240px;
+    object-fit: cover;
+    display: block;
+    background: var(--surface2);
+  }
+  .car-image-placeholder {
+    width: 100%;
+    height: 240px;
+    background: var(--surface2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    color: var(--text3);
+    font-size: 13px;
+  }
+  .car-image-placeholder svg { width: 40px; height: 40px; opacity: 0.4; }
+  .card-body { padding: 1.5rem; }
+  .car-title { font-size: 22px; font-weight: 600; letter-spacing: -0.5px; margin-bottom: 4px; }
+  .car-sub { font-size: 13px; color: var(--text2); margin-bottom: 1.25rem; display: flex; align-items: center; gap: 6px; }
+
+  .specs-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+    margin-bottom: 1.25rem;
+  }
+  .spec {
+    background: var(--surface2);
+    border-radius: var(--radius);
+    padding: 12px 14px;
+  }
+  .spec-label { font-size: 10px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); margin-bottom: 5px; font-weight: 500; }
+  .spec-value { font-size: 13px; color: var(--text); font-weight: 500; line-height: 1.4; }
+
+  .divider { border: none; border-top: 1px solid var(--border); margin: 1.25rem 0; }
+
+  .section-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; color: var(--text3); font-weight: 500; margin-bottom: 10px; }
+
+  .price-table { width: 100%; border-collapse: collapse; }
+  .price-table tr { border-bottom: 1px solid var(--border); }
+  .price-table tr:last-child { border-bottom: none; }
+  .price-table td { padding: 8px 0; font-size: 13px; color: var(--text2); }
+  .price-table td:last-child { text-align: right; font-weight: 600; color: var(--accent); }
+
+  .tags { display: flex; flex-wrap: wrap; gap: 6px; }
+  .tag {
+    font-size: 12px;
+    background: var(--surface3);
+    border: 1px solid var(--border2);
+    border-radius: 99px;
+    padding: 4px 12px;
+    color: var(--text2);
+    font-weight: 400;
+  }
+
+  /* ── COMPARE ── */
+  .compare-inputs { display: flex; gap: 8px; margin-bottom: 1rem; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .compare-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+  }
+  .compare-card.winner { border-color: var(--accent); }
+  .compare-car-img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover;
+    background: var(--surface2);
+    display: block;
+  }
+  .compare-img-placeholder {
+    width: 100%; height: 160px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3);
+  }
+  .compare-img-placeholder svg { width: 30px; height: 30px; opacity: 0.35; }
+  .compare-body { padding: 1rem; }
+  .winner-pill {
+    display: inline-flex; align-items: center; gap: 5px;
+    font-size: 11px; font-weight: 600;
+    background: var(--accent); color: #0f0f0f;
+    border-radius: 99px; padding: 3px 9px;
+    margin-bottom: 8px;
+  }
+  .winner-pill svg { width: 12px; height: 12px; }
+  .compare-name { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+  .compare-meta { font-size: 12px; color: var(--text2); margin-bottom: 10px; line-height: 1.5; }
+  .adv-list { display: flex; flex-direction: column; gap: 5px; }
+  .adv-item {
+    font-size: 12px; color: var(--text2);
+    display: flex; align-items: flex-start; gap: 6px;
+  }
+  .adv-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--accent); margin-top: 5px; flex-shrink: 0; }
+
+  .verdict {
+    margin-top: 1rem;
+    background: var(--accent-dim);
+    border: 1px solid var(--accent-border);
+    border-radius: var(--radius-lg);
+    padding: 1.25rem;
+  }
+  .verdict-title { font-size: 12px; font-weight: 600; color: var(--accent); text-transform: uppercase; letter-spacing: 0.6px; margin-bottom: 8px; }
+  .verdict-text { font-size: 13px; color: var(--text2); line-height: 1.7; }
+
+  /* ── BUDGET ── */
+  .slider-wrap { margin-bottom: 1.25rem; }
+  .slider-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+  .slider-label { font-size: 13px; color: var(--text2); }
+  .slider-val { font-size: 18px; font-weight: 600; color: var(--accent); letter-spacing: -0.5px; }
+  input[type=range] {
+    width: 100%;
+    appearance: none;
+    height: 4px;
+    background: var(--surface3);
+    border-radius: 99px;
+    outline: none;
+  }
+  input[type=range]::-webkit-slider-thumb {
+    appearance: none;
+    width: 18px; height: 18px;
+    background: var(--accent);
+    border-radius: 50%;
+    cursor: pointer;
+    transition: transform 0.1s;
+  }
+  input[type=range]::-webkit-slider-thumb:hover { transform: scale(1.1); }
+
+  .budget-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 12px;
+  }
+  .budget-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    cursor: pointer;
+    transition: border-color 0.15s, transform 0.15s;
+  }
+  .budget-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .budget-img {
+    width: 100%; height: 120px;
+    object-fit: cover;
+    background: var(--surface2);
+    display: block;
+  }
+  .budget-img-placeholder {
+    width: 100%; height: 120px;
+    background: var(--surface2);
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text3);
+  }
+  .budget-img-placeholder svg { width: 24px; height: 24px; opacity: 0.3; }
+  .budget-body { padding: 12px; }
+  .budget-name { font-size: 13px; font-weight: 600; margin-bottom: 3px; }
+  .budget-price { font-size: 13px; color: var(--accent); font-weight: 600; margin-bottom: 6px; }
+  .budget-pills { display: flex; flex-wrap: wrap; gap: 4px; }
+  .budget-pill {
+    font-size: 10px;
+    background: var(--surface3);
+    border-radius: 4px;
+    padding: 2px 7px;
+    color: var(--text3);
+    font-weight: 500;
+  }
+
+  /* ── STATES ── */
+  .loading {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text2);
+    font-size: 14px;
+  }
+  .spinner {
+    width: 28px; height: 28px;
+    border: 2px solid var(--border2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.7s linear infinite;
+    margin: 0 auto 12px;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .error-box {
+    background: rgba(255,79,79,0.08);
+    border: 1px solid rgba(255,79,79,0.25);
+    color: #ff6b6b;
+    border-radius: var(--radius);
+    padding: 12px 16px;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-top: 0.5rem;
+  }
+  .error-box svg { width: 16px; height: 16px; flex-shrink: 0; }
+
+  .empty {
+    text-align: center;
+    padding: 3rem;
+    color: var(--text3);
+    font-size: 14px;
+  }
+
+  @media (max-width: 560px) {
+    .specs-grid { grid-template-columns: 1fr; }
+    .compare-grid { grid-template-columns: 1fr; }
+    .compare-inputs { flex-direction: column; }
+    header { padding: 0 1rem; }
+    .container { padding: 1.5rem 1rem; }
+    .tabs { flex-wrap: wrap; }
+    .tab { padding: 7px 14px; font-size: 12px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-icon">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1l3-4h10l3 4h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/>
+        <circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/>
+      </svg>
+    </div>
+    Car Expert Bot
+  </div>
+  <div class="header-badge">Powered by Gemini</div>
+</header>
+
+<div class="container">
+  <div class="hero">
+    <h1>Your AI <span>Car Expert</span></h1>
+    <p>Search specs, compare models, or find the best cars within your budget — all in seconds.</p>
+  </div>
+
+  <div class="tabs-wrap">
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab('search')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Car Info
+      </button>
+      <button class="tab" onclick="switchTab('compare')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+        Compare
+      </button>
+      <button class="tab" onclick="switchTab('budget')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="5" width="20" height="14" rx="2"/><path d="M2 10h20"/></svg>
+        Budget
+      </button>
+    </div>
+  </div>
+
+  <!-- ── CAR INFO ── -->
+  <div id="panel-search" class="panel active">
+    <div class="search-row">
+      <input id="car-input" type="text" placeholder="e.g. Tata Punch, Maruti Baleno, Hyundai Creta"
+        onkeydown="if(event.key==='Enter') fetchCar()"/>
+      <button class="btn" id="btn-search" onclick="fetchCar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+        Search
+      </button>
+    </div>
+    <div id="search-result"></div>
+  </div>
+
+  <!-- ── COMPARE ── -->
+  <div id="panel-compare" class="panel">
+    <div class="compare-inputs">
+      <input id="car1-input" type="text" placeholder="Car 1 — e.g. Maruti Swift"
+        onkeydown="if(event.key==='Enter') fetchCompare()"/>
+      <input id="car2-input" type="text" placeholder="Car 2 — e.g. Hyundai Grand i10"
+        onkeydown="if(event.key==='Enter') fetchCompare()"/>
+    </div>
+    <button class="btn btn-full" id="btn-compare" onclick="fetchCompare()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 20V10"/><path d="M12 20V4"/><path d="M6 20v-6"/></svg>
+      Compare Cars
+    </button>
+    <div id="compare-result"></div>
+  </div>
+
+  <!-- ── BUDGET ── -->
+  <div id="panel-budget" class="panel">
+    <div class="slider-wrap">
+      <div class="slider-header">
+        <span class="slider-label">Max budget</span>
+        <span class="slider-val" id="budget-display">₹6,00,000</span>
+      </div>
+      <input type="range" min="300000" max="2000000" step="50000" value="600000"
+        id="budget-slider" oninput="updateBudgetDisplay(this.value)"/>
+    </div>
+    <button class="btn btn-full" id="btn-budget" onclick="fetchBudget()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.35-4.35"/></svg>
+      Find Cars in Budget
+    </button>
+    <div id="budget-result"></div>
+  </div>
+</div>
+
+<script>
+const API = 'http://localhost:5000';
+
+/* ── TAB SWITCHING ── */
+function switchTab(t) {
+  const names = ['search', 'compare', 'budget'];
+  document.querySelectorAll('.tab').forEach((el, i) => el.classList.toggle('active', names[i] === t));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-' + t).classList.add('active');
+}
+
+/* ── BUDGET SLIDER ── */
+function updateBudgetDisplay(v) {
+  document.getElementById('budget-display').textContent = '₹' + Number(v).toLocaleString('en-IN');
+}
+
+/* ── HELPERS ── */
+function loading(id) {
+  document.getElementById(id).innerHTML = `<div class="loading"><div class="spinner"></div>Fetching info...</div>`;
+}
+
+function error(id, msg) {
+  document.getElementById(id).innerHTML = `
+    <div class="error-box">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      ${msg}
+    </div>`;
+}
+
+function imgTag(url, alt, cls) {
+  if (!url || url.includes('placeholder')) {
+    return `<div class="${cls}-placeholder"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 17H3a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h1l3-4h10l3 4h1a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2"/><circle cx="7.5" cy="17.5" r="2.5"/><circle cx="16.5" cy="17.5" r="2.5"/></svg></div>`;
+  }
+  return `<img class="${cls}" src="${url}" alt="${alt}" onerror="this.outerHTML=this.nextElementSibling.outerHTML" loading="lazy"/>`;
+}
+
+function priceRows(price) {
+  if (!price || typeof price !== 'object') return `<tr><td>Base</td><td>${price || '—'}</td></tr>`;
+  return Object.entries(price).map(([k, v]) => `<tr><td>${k}</td><td>${v}</td></tr>`).join('');
+}
+
+/* ── CAR INFO ── */
+async function fetchCar() {
+  const q = document.getElementById('car-input').value.trim();
+  if (!q) return;
+  const btn = document.getElementById('btn-search');
+  btn.disabled = true;
+  loading('search-result');
+
+  try {
+    const res = await fetch(`${API}/get_car_info?car=${encodeURIComponent(q)}`);
+    const json = await res.json();
+    if (json.status !== 'success') { error('search-result', json.message); return; }
+    const d = json.data;
+    const features = Array.isArray(d.features) ? d.features.map(f => `<span class="tag">${f}</span>`).join('') : '';
+
+    document.getElementById('search-result').innerHTML = `
+      <div class="car-card">
+        ${imgTag(d.image_url, d.model, 'car-image')}
+        <div class="card-body">
+          <div class="car-title">${d.model || q}</div>
+          <div class="car-sub">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 22V8l9-6 9 6v14"/><rect x="9" y="14" width="6" height="8"/></svg>
+            ${d.mileage || '—'}
+          </div>
+          <div class="specs-grid">
+            <div class="spec"><div class="spec-label">Engine</div><div class="spec-value">${d.engine || '—'}</div></div>
+            <div class="spec"><div class="spec-label">Mileage</div><div class="spec-value">${d.mileage || '—'}</div></div>
+            <div class="spec" style="grid-column:1/-1"><div class="spec-label">Comfort</div><div class="spec-value">${d.comfort || '—'}</div></div>
+          </div>
+          <hr class="divider"/>
+          <div class="section-title">Price Variants</div>
+          <table class="price-table">${priceRows(d.price)}</table>
+          ${features ? `<hr class="divider"/><div class="section-title">Features</div><div class="tags">${features}</div>` : ''}
+        </div>
+      </div>`;
+  } catch(e) {
+    error('search-result', 'Cannot connect to server. Make sure the Flask app is running on port 5000.');
+  }
+  btn.disabled = false;
+}
+
+/* ── COMPARE ── */
+async function fetchCompare() {
+  const c1 = document.getElementById('car1-input').value.trim();
+  const c2 = document.getElementById('car2-input').value.trim();
+  if (!c1 || !c2) { error('compare-result', 'Enter both car names to compare.'); return; }
+  const btn = document.getElementById('btn-compare');
+  btn.disabled = true;
+  loading('compare-result');
+
+  try {
+    const res = await fetch(`${API}/compare_cars?car1=${encodeURIComponent(c1)}&car2=${encodeURIComponent(c2)}`);
+    const json = await res.json();
+    if (json.status !== 'success') { error('compare-result', json.message); return; }
+    const d = json.data;
+    const cmp = d.comparison || {};
+    const winner = cmp.better_overall;
+
+    function col(car, key) {
+      const isWin = winner === key;
+      const adv = ((cmp.advantages || {})[key] || []);
+      return `
+        <div class="compare-card ${isWin ? 'winner' : ''}">
+          ${imgTag(car.image_url, car.model, 'compare-car-img')}
+          <div class="compare-body">
+            ${isWin ? `<div class="winner-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22"/><path d="M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22"/><path d="M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg> Best Pick</div>` : ''}
+            <div class="compare-name">${car.model || key}</div>
+            <div class="compare-meta">${car.engine || ''} &nbsp;·&nbsp; ${car.mileage || ''}</div>
+            ${adv.length ? `<div class="adv-list">${adv.map(a => `<div class="adv-item"><div class="adv-dot"></div>${a}</div>`).join('')}</div>` : ''}
+          </div>
+        </div>`;
+    }
+
+    document.getElementById('compare-result').innerHTML = `
+      <div class="compare-grid">
+        ${col(d.car1, 'car1')}
+        ${col(d.car2, 'car2')}
+      </div>
+      ${cmp.summary || cmp.recommendation ? `
+        <div class="verdict">
+          <div class="verdict-title">Verdict</div>
+          <div class="verdict-text">${cmp.summary || ''}${cmp.recommendation ? '<br><br>' + cmp.recommendation : ''}</div>
+        </div>` : ''}`;
+  } catch(e) {
+    error('compare-result', 'Cannot connect to server. Make sure the Flask app is running on port 5000.');
+  }
+  btn.disabled = false;
+}
+
+/* ── BUDGET ── */
+async function fetchBudget() {
+  const budget = document.getElementById('budget-slider').value;
+  const btn = document.getElementById('btn-budget');
+  btn.disabled = true;
+  loading('budget-result');
+
+  try {
+    const res = await fetch(`${API}/cars_by_budget?max_price=${budget}`);
+    const json = await res.json();
+    if (json.status !== 'success') { error('budget-result', json.message); return; }
+    const cars = json.data.cars || [];
+    if (!cars.length) { document.getElementById('budget-result').innerHTML = `<div class="empty">No cars found for this budget.</div>`; return; }
+
+    const cards = cars.map(car => `
+      <div class="budget-card" onclick="loadDetail('${(car.model || '').replace(/'/g, "\\'")}')">
+        ${imgTag(car.image_url, car.model, 'budget-img')}
+        <div class="budget-body">
+          <div class="budget-name">${car.model || '—'}</div>
+          <div class="budget-price">${car.price || ''}</div>
+          <div class="budget-pills">
+            ${car.segment ? `<span class="budget-pill">${car.segment}</span>` : ''}
+            ${car.fuel_type ? `<span class="budget-pill">${car.fuel_type}</span>` : ''}
+            ${car.mileage ? `<span class="budget-pill">${car.mileage}</span>` : ''}
+          </div>
+        </div>
+      </div>`).join('');
+
+    document.getElementById('budget-result').innerHTML = `<div class="budget-grid">${cards}</div>`;
+  } catch(e) {
+    error('budget-result', 'Cannot connect to server. Make sure the Flask app is running on port 5000.');
+  }
+  btn.disabled = false;
+}
+
+function loadDetail(model) {
+  switchTab('search');
+  document.getElementById('car-input').value = model;
+  fetchCar();
+}
+</script>
+</body>
+</html>
